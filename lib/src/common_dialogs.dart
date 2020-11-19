@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_component/flutter_component.dart';
 
 typedef EditCallBack = bool Function(String);
 
 /// 显示通用dialog。可控制是否显示标题，是否是单个按钮。单个按钮则确认按钮有效，取消按钮无效。
 /// 点击取消按钮返回0， 点击确认按钮返回1
-Future<int> showTipsDialog<int>(
+Future<int> showTipsDialog(
   BuildContext context, {
   String titleText,
   Color titleTextColor = color333333,
@@ -27,6 +28,7 @@ Future<int> showTipsDialog<int>(
   double editTextSize = 16,
   Color editTextColor = color333333,
   double editHintTextSize = 16,
+  int valueLength = 50,
   Color editHintTextColor = colorC9C9C9,
   EditCallBack onEditValue,
 }) {
@@ -65,6 +67,7 @@ Future<int> showTipsDialog<int>(
           editHintText: editHintText,
           editHintTextSize: editHintTextSize,
           editHintTextColor: editHintTextColor,
+          valueLength:valueLength,
           cancelTap: () => Navigator.pop(context, 0),
           confirmTap: (value) {
             if (onEditValue != null) {
@@ -100,6 +103,7 @@ class TipsDialogWidget extends StatefulWidget {
   final String editHintText;
   final double editHintTextSize;
   final Color editHintTextColor;
+  final int valueLength;
 
   const TipsDialogWidget(
       {Key key,
@@ -122,6 +126,7 @@ class TipsDialogWidget extends StatefulWidget {
       this.editTextSize,
       this.editTextColor,
       this.editHintTextSize,
+      this.valueLength = 50,
       this.editHintTextColor})
       : super(key: key);
 
@@ -131,11 +136,12 @@ class TipsDialogWidget extends StatefulWidget {
 
 class _TipsDialogWidgetState extends State<TipsDialogWidget> {
   TextEditingController _textController;
-
+  var formatterList = <TextInputFormatter>[];
   @override
   void initState() {
     super.initState();
     _textController = TextEditingController();
+    formatterList..add(LengthLimitingTextInputFormatter(widget.valueLength));
   }
 
   @override
@@ -171,6 +177,7 @@ class _TipsDialogWidgetState extends State<TipsDialogWidget> {
                     cursorColor: Theme.of(context).primaryColor,
                     minLines: 3,
                     maxLines: 3,
+                    inputFormatters: formatterList,
                     style: TextStyle(
                         color: widget.editTextColor,
                         fontSize: widget.editTextSize),
